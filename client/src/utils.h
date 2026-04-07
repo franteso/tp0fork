@@ -10,6 +10,7 @@
 #include<string.h>
 #include<commons/log.h>
 
+
 typedef enum
 {
 	MENSAJE,

@@ -1,6 +1,7 @@
 #include "utils.h"
-
-
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 void* serializar_paquete(t_paquete* paquete, int bytes)
 {
 	void * magic = malloc(bytes);
@@ -16,28 +17,6 @@ void* serializar_paquete(t_paquete* paquete, int bytes)
 	return magic;
 }
 
-int crear_conexion(char *ip, char* puerto)
-{
-	struct addrinfo hints;
-	struct addrinfo *server_info;
-
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
-
-	getaddrinfo(ip, puerto, &hints, &server_info);
-
-	// Ahora vamos a crear el socket.
-	int socket_cliente = 0;
-
-	// Ahora que tenemos el socket, vamos a conectarlo
-
-
-	freeaddrinfo(server_info);
-
-	return socket_cliente;
-}
 
 void enviar_mensaje(char* mensaje, int socket_cliente)
 {
@@ -58,7 +37,31 @@ void enviar_mensaje(char* mensaje, int socket_cliente)
 	free(a_enviar);
 	eliminar_paquete(paquete);
 }
+int crear_conexion(char *ip, char *puerto) {
+    struct addrinfo hints;
+    struct addrinfo *server_info;
 
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+
+    getaddrinfo(ip, puerto, &hints, &server_info);
+
+    // ACÁ ESTÁ EL POSIBLE ERROR:
+    int socket_cliente = socket(server_info->ai_family, 
+                                server_info->ai_socktype, 
+                                server_info->ai_protocol);
+
+    if(connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen) == -1) {
+        printf("Error al conectar\n");
+        freeaddrinfo(server_info);
+        return -1; // Si falla, que devuelva -1, nunca 0
+    }
+
+    freeaddrinfo(server_info);
+
+    return socket_cliente; // <--- ASEGURATE DE QUE ESTA LÍNEA ESTÉ ASÍ
+}
 
 void crear_buffer(t_paquete* paquete)
 {

@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../server"
+		},
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"debug.onTaskErrors": "abort",
+		"files.associations": {
+			"*.h": "c"
+		}
+	}
+}
